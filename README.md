@@ -23,21 +23,36 @@ This repository contains comprehensive infrastructure guides for each project, c
 
 ---
 
-### 2. **Tripletex PDF Integration** (Planned)
+### 2. **Tripletex PDF Integration** (`tripletex-pdf-integration`)
 - **Repository**: https://github.com/robinpayman/tripletex-pdf-integration
-- **Guide**: `tripletex-pdf-integration-INFRASTRUCTURE_GUIDE.md` (coming soon)
+- **Deployment**: Azure VM with SFTP watcher service
+- **Guide**: [tripletex-pdf-integration-INFRASTRUCTURE_GUIDE.md](./tripletex-pdf-integration-INFRASTRUCTURE_GUIDE.md)
+
+**Stack**: Python, SFTP, Tripletex API, systemd service  
+**Key Components**: PDF processing, invoice validation, duplicate detection, email alerts  
+**Deployment**: 24/7 Linux service on Azure VM
 
 ---
 
-### 3. **WooCommerce-Tripletex Integration** (Planned)
+### 3. **WooCommerce-Tripletex Integration** (`wc-tripletex-integration`)
 - **Repository**: https://github.com/robinpayman/wc-tripletex-integration
-- **Guide**: `wc-tripletex-integration-INFRASTRUCTURE_GUIDE.md` (coming soon)
+- **Deployment**: WordPress plugin + Vercel API backend
+- **Guide**: [wc-tripletex-integration-INFRASTRUCTURE_GUIDE.md](./wc-tripletex-integration-INFRASTRUCTURE_GUIDE.md)
+
+**Stack**: PHP (WordPress), Vercel, MySQL, REST APIs  
+**Key Components**: Order sync, product sync, stock sync, webhook integration  
+**Deployment**: Auto-syncs when orders marked as "Processing"
 
 ---
 
-### 4. **Klubben SFTP Service** (Planned)
+### 4. **Klubben SFTP Service** (`klubben-sftp-service`)
 - **Repository**: https://github.com/robinpayman/klubben-sftp-service
-- **Guide**: `klubben-sftp-service-INFRASTRUCTURE_GUIDE.md` (coming soon)
+- **Deployment**: Azure VM with SFTP watcher service
+- **Guide**: [klubben-sftp-service-INFRASTRUCTURE_GUIDE.md](./klubben-sftp-service-INFRASTRUCTURE_GUIDE.md)
+
+**Stack**: Python, XML parsing, SFTP, Tripletex API  
+**Key Components**: Klubben XML processing, customer mapping, duplicate detection  
+**Deployment**: 24/7 Linux service on Azure VM (similar to PDF integration)
 
 ---
 
@@ -46,9 +61,9 @@ This repository contains comprehensive infrastructure guides for each project, c
 | Project | Live URL | Status | Guide |
 | --- | --- | --- | --- |
 | **entrynor-website** | https://entrynor.no | ✅ Live | [View](./entrynor-website-INFRASTRUCTURE_GUIDE.md) |
-| **tripletex-pdf-integration** | Azure VM | ✅ Deployed | Coming soon |
-| **wc-tripletex-integration** | Vercel API | ✅ Deployed | Coming soon |
-| **klubben-sftp-service** | Azure VM | ✅ Deployed | Coming soon |
+| **tripletex-pdf-integration** | Azure VM | ✅ Deployed | [View](./tripletex-pdf-integration-INFRASTRUCTURE_GUIDE.md) |
+| **wc-tripletex-integration** | Vercel API | ✅ Deployed | [View](./wc-tripletex-integration-INFRASTRUCTURE_GUIDE.md) |
+| **klubben-sftp-service** | Azure VM | ✅ Deployed | [View](./klubben-sftp-service-INFRASTRUCTURE_GUIDE.md) |
 
 ---
 
