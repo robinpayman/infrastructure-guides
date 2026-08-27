@@ -558,6 +558,43 @@ Before going live with order syncing, verify:
 
 ---
 
+## 17. Klubben Order Invoicing Safety Net (Added August 2026)
+
+### Background
+
+Klubben orders are created directly in Tripletex by the separate `tripletex-pdf-integration` project (XML/SFTP based) - no WooCommerce order exists for them, so `fetch_wc_order_by_tt_id()` can never match them.
+
+Previously, Klubben orders reaching Tripletex status `READY_FOR_INVOICING` were auto-invoiced natively by the company's WMS system, not by any script in this repository. As of August 2026, this repository has taken over that responsibility, adding a shipping-cost safety check the WMS did not have.
+
+### How it works
+
+`sync_tt_invoice_to_wc.py`'s `process_order()` branches on `customer.id`: if it matches `KLUBBEN_CUSTOMER_ID` (17831862), it skips all WooCommerce-order matching/validation/status-update steps and instead:
+
+1. Calculates the shipping-cost ratio via `calculate_klubben_shipping_ratio()`: shipping-product line total ÷ non-shipping line total. Shipping products: 83153313 (99995 Frakt ata), 84868197 (9997 Hentes på lager), 24236172 (9999 Frakt).
+2. If the ratio exceeds 30% (`KLUBBEN_SHIPPING_RATIO_THRESHOLD`), the order is **not** invoiced. `hold_klubben_order_for_shipping_review()` sets the order's Tripletex status to `PICKED` ("pakket") and emails an alert to robin@atatreningsutstyr.no. This is naturally idempotent - once held, the order leaves the `READY_FOR_INVOICING` scan filter and won't be re-flagged.
+3. If the ratio is within threshold, the order is invoiced directly via the existing `create_invoice_from_order()` (same Tripletex `PUT /order/{id}/:invoice` call used for WooCommerce orders).
+
+A dedicated `--scan-klubben` CLI flag scans only Klubben orders in `READY_FOR_INVOICING`. `wc_order_watcher.py`'s continuous poll loop (`run_once()`, every `POLL_INTERVAL` = 300s) calls `sync_klubben_invoices_from_tripletex()`, which shells out to `sync_tt_invoice_to_wc.py --scan-klubben`.
+
+### Feature flag
+
+The Klubben scan is gated behind `KLUBBEN_INVOICE_SCAN_ENABLED`, stored as an Azure Key Vault secret (`klubben-invoice-scan-enabled` in `tt-secrets-vault`) - not in `.env.production` (removed after the Key Vault secret was verified working, per this project's Key Vault-first credential policy).
+
+### Rollout status
+
+- **Live as of August 27, 2026.** Deployed to the `tripletex-sftp` Azure VM (`/opt/tripletex/app/`), running under the `wc_order_watcher.service` systemd service.
+- The WMS system's native Klubben auto-invoice feature is being disabled now that this safety net is confirmed running.
+- PR: https://github.com/robinpayman/wc-tripletex-integration/pull/9
+
+### Verification performed before go-live
+
+- Both files compile cleanly.
+- `--scan-klubben` dry-run against real production data found 12 Klubben orders; all had already been invoiced by the (still-active at the time) WMS before full details could be fetched, confirming the WMS's speed and that the status check behaves safely.
+- 6 fully-mocked offline tests confirmed the shipping-ratio math and both branches (safe→invoice, unsafe→hold+alert).
+- Live deployment verified via a clean `wc_order_watcher.service` restart and a full poll cycle completing the new "Checking Klubben orders ready for invoicing" step with no errors, both before and after moving the feature flag from `.env.production` to Key Vault.
+
+---
+
 **Last Updated**: August 2026  
 **Maintainer**: Robin Payman  
 **Status**: Production  

@@ -21,6 +21,8 @@ Complete reference for the PDF file processing and Tripletex synchronization ser
 - **24/7 Operation**: systemd service with auto-restart
 - **Logging**: Comprehensive error and activity logs
 
+> **Scope note (August 2026)**: This project creates Klubben **orders** in Tripletex (initial status `READY_FOR_PICKING`) from incoming XML files. It does **not** handle invoicing. The `READY_FOR_INVOICING` → invoiced transition for Klubben orders is handled by the separate `wc-tripletex-integration` project - see its infrastructure guide, Section 17 ("Klubben Order Invoicing Safety Net"), for that logic and its shipping-cost safety check.
+
 ---
 
 ## 2. Code Repository
@@ -677,6 +679,16 @@ sudo systemctl start sftp_watcher.service
 # 5. Monitor
 sudo journalctl -u sftp_watcher.service -f
 ```
+
+---
+
+## 16. Klubben Order Invoicing (Cross-Reference)
+
+This project's responsibility ends once a Klubben order is created in Tripletex with status `READY_FOR_PICKING`. It does not invoice orders.
+
+Invoicing (the `READY_FOR_INVOICING` → invoiced transition, including a 30% shipping-cost safety check that holds disproportionate orders and alerts robin@atatreningsutstyr.no instead of invoicing them) is implemented in the separate `wc-tripletex-integration` repository - see **wc-tripletex-integration-INFRASTRUCTURE_GUIDE.md, Section 17**.
+
+Both projects' services run on the same Azure VM (`tripletex-sftp`, `/opt/tripletex/app/`) but as independent systemd services: this project's `sftp_watcher.service` for order creation, and `wc_order_watcher.service` (from `wc-tripletex-integration`) for invoicing.
 
 ---
 

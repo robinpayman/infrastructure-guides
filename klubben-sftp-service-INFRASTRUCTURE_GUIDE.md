@@ -236,6 +236,7 @@ Key sections from the PDF guide that apply here:
 - Section 9: Troubleshooting
 - Section 14: Quick Reference
 - Section 15: Disaster Recovery
+- Section 16: Klubben Order Invoicing (Cross-Reference) - order **creation** only happens here; invoicing (with a 30% shipping-cost safety check) is handled separately by `wc-tripletex-integration` - see that project's infrastructure guide, Section 17.
 
 ---
 
